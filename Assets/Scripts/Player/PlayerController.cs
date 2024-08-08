@@ -10,17 +10,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputActionReference crouchControl;
     [SerializeField] private InputActionReference sprintControl;
 
-    [Header("Cinemachine Cameras")]
-    [SerializeField] private CinemachineVirtualCamera isometricCamera;
-    [SerializeField] private CinemachineVirtualCamera topDownCamera;
-    [SerializeField] private CinemachineVirtualCamera side2DCamera;
-
     private CharacterController controller;
     private Animator animator;
     [SerializeField] private Vector3 playerVelocity;
-    private bool groundedPlayer;
-    [SerializeField] private CinemachineVirtualCamera activeCamera;
-    private Transform cameraMainTransform;
+    private bool _isGroundedPlayer;
 
     [SerializeField] private float rotationSpeed = 4f;
     [SerializeField] private float playerSpeed = 2.0f;
@@ -31,14 +24,6 @@ public class PlayerController : MonoBehaviour
     private float currentSpeed;
     [SerializeField] private bool isCrouching = false;
 
-    private CameraType currentCameraType = CameraType.Isometric;
-
-    private enum CameraType
-    {
-        Isometric,
-        TopDown,
-        Side2D
-    }
 
     private void OnEnable()
     {
@@ -53,60 +38,20 @@ public class PlayerController : MonoBehaviour
         crouchControl.action.Disable();
         sprintControl.action.Disable();
     }
-
+    private void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>(); // Obtenemos el Animator del GameObject
+    }
     private void Start()
     {
-        controller = gameObject.GetComponent<CharacterController>();
-        animator = GetComponent<Animator>(); // Obtenemos el Animator del GameObject
-        DetermineCameraType();
         currentSpeed = playerSpeed;
-    }
-
-    private void DetermineCameraType()
-    {
-        CinemachineVirtualCamera[] cameras = { isometricCamera, topDownCamera, side2DCamera };
-        CinemachineVirtualCamera highestPriorityCamera = null;
-        int highestPriority = int.MinValue;
-
-        foreach (var camera in cameras)
-        {
-            if (camera.Priority > highestPriority)
-            {
-                highestPriority = camera.Priority;
-                highestPriorityCamera = camera;
-            }
-        }
-
-        if (highestPriorityCamera != null)
-        {
-            activeCamera = highestPriorityCamera;
-            cameraMainTransform = activeCamera.transform;
-
-            if (activeCamera == isometricCamera)
-            {
-                currentCameraType = CameraType.Isometric;
-            }
-            else if (activeCamera == topDownCamera)
-            {
-                currentCameraType = CameraType.TopDown;
-            }
-            else if (activeCamera == side2DCamera)
-            {
-                currentCameraType = CameraType.Side2D;
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No hay c�mara activa.");
-        }
     }
 
     void Update()
     {
-        DetermineCameraType();
-
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
+        _isGroundedPlayer = controller.isGrounded;
+        if (_isGroundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
@@ -114,23 +59,23 @@ public class PlayerController : MonoBehaviour
         Vector2 movement = movementControl.action.ReadValue<Vector2>();
         Vector3 move = Vector3.zero;
 
-        switch (currentCameraType)
+        switch (CameraControl.CurrentType)
         {
-            case CameraType.Isometric:
+            case CameraControl.CameraType.Isometric:
                 move = new Vector3(movement.x, 0, movement.y);
-                move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
+                move = CameraControl.CameraTransform.forward * move.z + CameraControl.CameraTransform.right * move.x;
                 move.y = 0f;
 
                 // Rotaci�n en vista isom�trica
                 if (movement != Vector2.zero)
                 {
-                    float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + cameraMainTransform.eulerAngles.y;
+                    float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
                     transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
                 }
                 break;
 
-            case CameraType.TopDown:
+            case CameraControl.CameraType.TopDown:
                 move = new Vector3(movement.x, 0, movement.y);
                 move.y = 0f;
 
@@ -143,7 +88,7 @@ public class PlayerController : MonoBehaviour
                 }
                 break;
 
-            case CameraType.Side2D:
+            case CameraControl.CameraType.Side2D:
                 move = new Vector3(movement.x, 0, 0);
 
                 // Rotaci�n en vista 2D (solo eje Y)
@@ -198,9 +143,9 @@ public class PlayerController : MonoBehaviour
     private bool IsMoving()
     {
         Vector2 movement = movementControl.action.ReadValue<Vector2>();
-        switch(currentCameraType)
+        switch(CameraControl.CurrentType)
         {
-            case CameraType.Side2D:
+            case CameraControl.CameraType.Side2D:
             return movement.x != 0;
 
             default:
