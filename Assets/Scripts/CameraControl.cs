@@ -5,74 +5,40 @@ using Cinemachine;
 
 public class CameraControl : MonoBehaviour
 {
-    [SerializeField] private CinemachineVirtualCamera topDownCamera;
-    [SerializeField] private CinemachineVirtualCamera isometricCamera;
-    [SerializeField] private CinemachineVirtualCamera twoDCamera;
-
-    private bool isTopDownActive = false;
-    private bool isIsometricActive = false;
-    private bool twoDActive = true;
+    [SerializeField] private CinemachineVirtualCamera[] _cameras;
+    private CinemachineVirtualCamera _currentCamera => _cameras[_cameraIndex];
+    private int _cameraIndex;
 
     private void Start()
     {
-        // Activar inicialmente la cámara de 3ra persona y desactivar las otras.
-        ActivateIsometricCamera();
+        DeactivateCameras();
+        ActivateCamera();
     }
-
+    private void SwitchCurrentCamera()
+    {
+        _cameraIndex ++;
+        _cameraIndex = _cameraIndex >= _cameras.Length ? 0 : _cameraIndex;
+        DeactivateCameras();
+        ActivateCamera();
+    }
+    private void DeactivateCameras()
+    {
+        foreach(var camera in _cameras)
+        {
+            camera.Priority = 0;
+            camera.gameObject.SetActive(false);
+        }
+    }
+    private void ActivateCamera()
+    {
+        _currentCamera.Priority = 10;
+        _currentCamera.gameObject.SetActive(true);
+    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            SwitchCamera();
+            SwitchCurrentCamera();
         }
-    }
-
-    private void SwitchCamera()
-    {
-        if (twoDActive)
-        {
-            ActivateTopDownCamera();
-        }
-        else if (isTopDownActive)
-        {
-            ActivateIsometricCamera();
-        }
-        else if (isIsometricActive)
-        {
-            Activate2DCamera();
-        }
-    }
-
-    private void ActivateTopDownCamera()
-    {
-        topDownCamera.Priority = 10;
-        isometricCamera.Priority = 0;
-        twoDCamera.Priority = 0;
-
-        isTopDownActive = true;
-        isIsometricActive = false;
-        twoDActive = false;
-    }
-
-    private void ActivateIsometricCamera()
-    {
-        topDownCamera.Priority = 0;
-        isometricCamera.Priority = 10;
-        twoDCamera.Priority = 0;
-
-        isTopDownActive = false;
-        isIsometricActive = true;
-        twoDActive = false;
-    }
-
-    private void Activate2DCamera()
-    {
-        topDownCamera.Priority = 0;
-        isometricCamera.Priority = 0;
-        twoDCamera.Priority = 10;
-
-        isTopDownActive = false;
-        isIsometricActive = false;
-        twoDActive = true;
     }
 }

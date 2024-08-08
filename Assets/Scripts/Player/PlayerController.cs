@@ -97,7 +97,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No hay cámara activa.");
+            Debug.LogWarning("No hay cï¿½mara activa.");
         }
     }
 
@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour
                 move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
                 move.y = 0f;
 
-                // Rotación en vista isométrica
+                // Rotaciï¿½n en vista isomï¿½trica
                 if (movement != Vector2.zero)
                 {
                     float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + cameraMainTransform.eulerAngles.y;
@@ -134,7 +134,7 @@ public class PlayerController : MonoBehaviour
                 move = new Vector3(movement.x, 0, movement.y);
                 move.y = 0f;
 
-                // Rotación en vista top-down
+                // Rotaciï¿½n en vista top-down
                 if (movement != Vector2.zero)
                 {
                     float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg;
@@ -146,7 +146,7 @@ public class PlayerController : MonoBehaviour
             case CameraType.Side2D:
                 move = new Vector3(movement.x, 0, 0);
 
-                // Rotación en vista 2D (solo eje Y)
+                // Rotaciï¿½n en vista 2D (solo eje Y)
                 if (movement.x != 0)
                 {
                     float targetAngle = movement.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
@@ -191,8 +191,20 @@ public class PlayerController : MonoBehaviour
         controller.Move(playerVelocity * Time.deltaTime);
 
         // Actualizar los bools en el Animator
-        animator.SetBool("walking", movement != Vector2.zero && !isRunning);
-        animator.SetBool("running", isRunning);
+        animator.SetBool("walking", IsMoving() && !isRunning);
+        animator.SetBool("running", IsMoving() && isRunning);
         animator.SetBool("crouching", isCrouching);
+    }
+    private bool IsMoving()
+    {
+        Vector2 movement = movementControl.action.ReadValue<Vector2>();
+        switch(currentCameraType)
+        {
+            case CameraType.Side2D:
+            return movement.x != 0;
+
+            default:
+            return movement != Vector2.zero;
+        }
     }
 }
