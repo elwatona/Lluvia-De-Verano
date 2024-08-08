@@ -55,46 +55,44 @@ public class PlayerController : MonoBehaviour
         {
             playerVelocity.y = 0f;
         }
-
-        Vector2 movement = movementControl.action.ReadValue<Vector2>();
         Vector3 move = Vector3.zero;
 
         switch (CameraControl.CurrentType)
         {
             case CameraControl.CameraType.Isometric:
-                move = new Vector3(movement.x, 0, movement.y);
+                move = new Vector3(_movement.x, 0, _movement.y);
                 move = CameraControl.CameraTransform.forward * move.z + CameraControl.CameraTransform.right * move.x;
                 move.y = 0f;
 
                 // Rotaci�n en vista isom�trica
-                if (movement != Vector2.zero)
+                if (_movement != Vector2.zero)
                 {
-                    float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
+                    float targetAngle = Mathf.Atan2(_movement.x, _movement.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
                     transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
                 }
                 break;
 
             case CameraControl.CameraType.TopDown:
-                move = new Vector3(movement.x, 0, movement.y);
+                move = new Vector3(_movement.x, 0, _movement.y);
                 move.y = 0f;
 
                 // Rotaci�n en vista top-down
-                if (movement != Vector2.zero)
+                if (_movement != Vector2.zero)
                 {
-                    float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg;
+                    float targetAngle = Mathf.Atan2(_movement.x, _movement.y) * Mathf.Rad2Deg;
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
                     transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
                 }
                 break;
 
             case CameraControl.CameraType.Side2D:
-                move = new Vector3(movement.x, 0, 0);
+                move = new Vector3(_movement.x, 0, 0);
 
                 // Rotaci�n en vista 2D (solo eje Y)
-                if (movement.x != 0)
+                if (_movement.x != 0)
                 {
-                    float targetAngle = movement.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
+                    float targetAngle = _movement.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
                     transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
                 }
@@ -102,8 +100,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Sprint
-        bool isRunning = sprintControl.action.IsPressed() && !isCrouching;
-        if (isRunning)
+        if (IsRunning)
         {
             currentSpeed = sprintSpeed;
         }
@@ -113,7 +110,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Crouch
-        if (crouchControl.action.WasPressedThisFrame() && movement == Vector2.zero)
+        if (IsCrouching)
         {
             isCrouching = !isCrouching;
             if (isCrouching)
@@ -136,20 +133,29 @@ public class PlayerController : MonoBehaviour
         controller.Move(playerVelocity * Time.deltaTime);
 
         // Actualizar los bools en el Animator
-        animator.SetBool("walking", IsMoving() && !isRunning);
-        animator.SetBool("running", IsMoving() && isRunning);
+        animator.SetBool("walking", IsMoving && !IsRunning);
+        animator.SetBool("running", IsMoving && IsRunning);
         animator.SetBool("crouching", isCrouching);
     }
-    private bool IsMoving()
+    
+    private Vector2 _movement => movementControl.action.ReadValue<Vector2>();
+    private bool IsMoving
     {
-        Vector2 movement = movementControl.action.ReadValue<Vector2>();
-        switch(CameraControl.CurrentType)
+        get
         {
-            case CameraControl.CameraType.Side2D:
-            return movement.x != 0;
+            switch(CameraControl.CurrentType)
+            {
+                case CameraControl.CameraType.Side2D:
+                return _movement.x != 0;
 
-            default:
-            return movement != Vector2.zero;
+                case CameraControl.CameraType.Dialogue:
+                return false;
+
+                default:
+                return _movement != Vector2.zero;
+            }
         }
     }
+    private bool IsRunning => sprintControl.action.IsPressed() && !isCrouching;
+    private bool IsCrouching => crouchControl.action.WasPressedThisFrame() && _movement == Vector2.zero;
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using Unity.VisualScripting;
 
 public class CameraControl : MonoBehaviour
 {
@@ -10,17 +11,28 @@ public class CameraControl : MonoBehaviour
     {
         Isometric,
         TopDown,
-        Side2D
+        Side2D,
+        Dialogue
     }
     [SerializeField] private CinemachineVirtualCamera[] _cameras;
+    [SerializeField] private CinemachineVirtualCamera _interact;
     private CinemachineVirtualCamera _currentCamera => _cameras[_cameraIndex];
     private CinemachineBrain _brain;
     static public CameraType CurrentType {get; private set;}
     static public Transform CameraTransform {get; private set;}
     private int _cameraIndex;
+    [SerializeField] private bool _canSwitch = true;
     private void Awake()
     {
         _brain = GetComponentInChildren<CinemachineBrain>();
+    }
+    private void OnEnable()
+    {
+        InteractableObject.OnInteract += InteractCamera;
+    }
+    private void OnDisable()
+    {
+        InteractableObject.OnInteract -= InteractCamera;
     }
     private void Start()
     {
@@ -41,6 +53,7 @@ public class CameraControl : MonoBehaviour
             camera.Priority = 0;
             camera.gameObject.SetActive(false);
         }
+        _interact.gameObject.SetActive(false);
     }
     private void ActivateCamera()
     {
@@ -61,9 +74,26 @@ public class CameraControl : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (_canSwitch && Input.GetKeyDown(KeyCode.Tab))
         {
             SwitchCurrentCamera();
         }
+    }
+    private void InteractCamera(Transform interactuable, bool active)
+    {
+        _canSwitch = !active;
+
+        if(!active)
+        {
+            _interact.LookAt = null;
+            _interact.gameObject.SetActive(false);
+            ActivateCamera();
+            return;
+        }
+
+        DeactivateCameras();
+        CurrentType = CameraType.Dialogue;
+        _interact.gameObject.SetActive(true);
+        _interact.LookAt = interactuable;
     }
 }

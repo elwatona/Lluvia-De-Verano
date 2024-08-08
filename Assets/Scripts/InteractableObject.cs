@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine.UI;
 
 public class InteractableObject : MonoBehaviour
 {
+    public static event Action<Transform, bool> OnInteract;
     [SerializeField] private Canvas interactionCanvas;
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject interactionPanel;
@@ -15,9 +17,11 @@ public class InteractableObject : MonoBehaviour
     private bool isInteracting = false;
     private Animator animator;
     public bool isNPC = false;
+    private Quaternion _originalRotation;
 
     private void Start()
     {
+        _originalRotation = transform.rotation;
         interactionCanvas.enabled = false; 
         characterController = player.GetComponent<CharacterController>(); 
         playerController = player.GetComponent<PlayerController>();
@@ -31,8 +35,6 @@ public class InteractableObject : MonoBehaviour
             interactionCanvas.enabled = true; 
             interactionText.SetActive(true);
             playerInRange = true;
-
-            
         }
     }
 
@@ -52,10 +54,12 @@ public class InteractableObject : MonoBehaviour
         {
             if (isInteracting)
             {
+                OnInteract?.Invoke(transform, false);
                 EndInteraction();
             }
             else
             {
+                OnInteract?.Invoke(transform, true);
                 StartInteraction();
             }
         }
@@ -63,20 +67,17 @@ public class InteractableObject : MonoBehaviour
 
     private void StartInteraction()
     {
-
+        transform.LookAt(player.transform);
         interactionText.SetActive(false);
         playerController.enabled = false;
         isInteracting = true;
         interactionPanel.SetActive(true);
-        if (isNPC == true)
-        {
-            animator.SetBool("talking", true);
-        }
+        if (isNPC == true) animator.SetBool("talking", true);
     }
 
     private void EndInteraction()
     {
-
+        transform.rotation = _originalRotation;
         interactionText.SetActive(true);
         playerController.enabled = true;
         isInteracting = false;
