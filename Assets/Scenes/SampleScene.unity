@@ -1003,6 +1003,7 @@ MonoBehaviour:
   player: {fileID: 1196297755}
   interactionPanel: {fileID: 328222414}
   interactionText: {fileID: 1878392406}
+  isNPC: 0
 --- !u!65 &609031451
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1535,6 +1536,49 @@ MonoBehaviour:
   - {fileID: 1457451213}
   - {fileID: 479055525}
   - {fileID: 1674705828}
+--- !u!1 &817686309 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+  m_PrefabInstance: {fileID: 1599753742}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &817686312
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817686309}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 5, y: 3, z: 5}
+  m_Center: {x: 0, y: 1.71, z: 0}
+--- !u!114 &817686313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817686309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36f469b510019f245bd2cf2ecc9285dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionCanvas: {fileID: 593239100}
+  player: {fileID: 2083235415}
+  interactionPanel: {fileID: 328222414}
+  interactionText: {fileID: 1878392406}
+  isNPC: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,6 +2309,83 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1498321389}
   m_CullTransparentMesh: 1
+--- !u!1001 &1599753742
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 13.727663
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.3379936
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.21243699
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.97717476
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 155.47
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_Name
+      value: Fernanda
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: a3e2ecd1408fecc408b0e5ef20a1a1da, type: 2}
+    - target: {fileID: 5866666021909216657, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'mixamorig:Hips'\n\tTransform 'mixamorig:LeftFoot'\n\tTransform
+        'mixamorig:LeftHandIndex1'\n\tTransform 'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform
+        'mixamorig:RightArm'\n\tTransform 'mixamorig:LeftLeg'\n\tTransform 'mixamorig:RightFoot'\n\tTransform
+        'mixamorig:Head'\n\tTransform 'mixamorig:LeftUpLeg'\n\tand more ...\n\tFrom
+        animation clip 'Idle NPC'"
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 817686312}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 817686313}
+  m_SourcePrefab: {fileID: 100100000, guid: dd3080531e81caa4181ba7b402c05e26, type: 3}
 --- !u!1 &1674705826
 GameObject:
   m_ObjectHideFlags: 3
@@ -2905,3 +3026,4 @@ SceneRoots:
   - {fileID: 777951930}
   - {fileID: 1100708588}
   - {fileID: 343114364}
+  - {fileID: 1599753742}

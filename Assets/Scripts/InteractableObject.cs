@@ -13,12 +13,15 @@ public class InteractableObject : MonoBehaviour
     private PlayerController playerController;
     private bool playerInRange = false;
     private bool isInteracting = false;
+    private Animator animator;
+    public bool isNPC = false;
 
     private void Start()
     {
         interactionCanvas.enabled = false; 
         characterController = player.GetComponent<CharacterController>(); 
         playerController = player.GetComponent<PlayerController>();
+        animator = GetComponent<Animator>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -28,6 +31,7 @@ public class InteractableObject : MonoBehaviour
             interactionCanvas.enabled = true; 
             interactionText.SetActive(true);
             playerInRange = true;
+
             
         }
     }
@@ -64,6 +68,10 @@ public class InteractableObject : MonoBehaviour
         playerController.enabled = false;
         isInteracting = true;
         interactionPanel.SetActive(true);
+        if (isNPC == true)
+        {
+            animator.SetBool("talking", true);
+        }
     }
 
     private void EndInteraction()
@@ -73,5 +81,6 @@ public class InteractableObject : MonoBehaviour
         playerController.enabled = true;
         isInteracting = false;
         interactionPanel.SetActive(false);
+        animator.SetBool("talking", false);
     }
 }
