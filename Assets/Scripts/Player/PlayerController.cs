@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>(); // Obtenemos el Animator del GameObject
+        animator = GetComponent<Animator>();
     }
     private void Start()
     {

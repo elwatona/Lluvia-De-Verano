@@ -1519,7 +1519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa7155796051b734daa718462081dc5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_BindingMode: 1
+  m_BindingMode: 5
   m_FollowOffset: {x: 0, y: 2.91, z: -5.53}
   m_XDamping: 1
   m_YDamping: 1
@@ -1873,11 +1873,7 @@ MonoBehaviour:
   movementControl: {fileID: 6457544848979614625, guid: 5be73463454b8834d8787145c1f38503, type: 3}
   crouchControl: {fileID: -5054940362726808207, guid: 5be73463454b8834d8787145c1f38503, type: 3}
   sprintControl: {fileID: -6915084605742977590, guid: 5be73463454b8834d8787145c1f38503, type: 3}
-  isometricCamera: {fileID: 1801902737}
-  topDownCamera: {fileID: 338034882}
-  side2DCamera: {fileID: 2050752763}
   playerVelocity: {x: 0, y: 0, z: 0}
-  activeCamera: {fileID: 0}
   rotationSpeed: 4
   playerSpeed: 2
   sprintSpeed: 4
