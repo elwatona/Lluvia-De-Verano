@@ -16,7 +16,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera side2DCamera;
 
     private CharacterController controller;
-    private Vector3 playerVelocity;
+    private Animator animator;
+    [SerializeField] private Vector3 playerVelocity;
     private bool groundedPlayer;
     [SerializeField] private CinemachineVirtualCamera activeCamera;
     private Transform cameraMainTransform;
@@ -28,7 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpHeight = 1.0f;
     [SerializeField] private float gravityValue = -9.81f;
     private float currentSpeed;
-    private bool isCrouching = false;
+    [SerializeField] private bool isCrouching = false;
 
     private CameraType currentCameraType = CameraType.Isometric;
 
@@ -55,7 +56,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        controller = gameObject.AddComponent<CharacterController>();
+        controller = gameObject.GetComponent<CharacterController>();
+        animator = GetComponent<Animator>(); // Obtenemos el Animator del GameObject
         DetermineCameraType();
         currentSpeed = playerSpeed;
     }
@@ -155,7 +157,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Sprint
-        if (sprintControl.action.IsPressed() && !isCrouching)
+        bool isRunning = sprintControl.action.IsPressed() && !isCrouching;
+        if (isRunning)
         {
             currentSpeed = sprintSpeed;
         }
@@ -165,18 +168,20 @@ public class PlayerController : MonoBehaviour
         }
 
         // Crouch
-        if (crouchControl.action.WasPressedThisFrame())
+        if (crouchControl.action.WasPressedThisFrame() && movement == Vector2.zero)
         {
             isCrouching = !isCrouching;
             if (isCrouching)
             {
                 currentSpeed = crouchSpeed;
-                controller.height = 1.0f;
+                controller.height = 2f;
+                controller.center = new Vector3(0, 1, 0);
             }
             else
             {
                 currentSpeed = playerSpeed;
-                controller.height = 2.0f;
+                controller.height = 4;
+                controller.center = new Vector3(0, 2, 0);
             }
         }
 
@@ -184,5 +189,10 @@ public class PlayerController : MonoBehaviour
 
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
+
+        // Actualizar los bools en el Animator
+        animator.SetBool("walking", movement != Vector2.zero && !isRunning);
+        animator.SetBool("running", isRunning);
+        animator.SetBool("crouching", isCrouching);
     }
 }

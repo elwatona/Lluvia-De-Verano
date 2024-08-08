@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -513,6 +512,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hijo FBX@Walking
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
       propertyPath: m_Controller
       value: 
@@ -520,7 +523,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2083235419}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2083235420}
   m_SourcePrefab: {fileID: 100100000, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
 --- !u!1 &479055523
 GameObject:
@@ -1418,7 +1427,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1196297756
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2817,6 +2826,62 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2064964223}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2083235415 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
+  m_PrefabInstance: {fileID: 343114364}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2083235419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2083235415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 760d9938baa43394eb3fdd8a62770b3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementControl: {fileID: 6457544848979614625, guid: 5be73463454b8834d8787145c1f38503, type: 3}
+  crouchControl: {fileID: -5054940362726808207, guid: 5be73463454b8834d8787145c1f38503, type: 3}
+  sprintControl: {fileID: -6915084605742977590, guid: 5be73463454b8834d8787145c1f38503, type: 3}
+  isometricCamera: {fileID: 1801902737}
+  topDownCamera: {fileID: 338034882}
+  side2DCamera: {fileID: 2050752763}
+  activeCamera: {fileID: 0}
+  rotationSpeed: 4
+  playerSpeed: 2
+  sprintSpeed: 4
+  crouchSpeed: 1
+  jumpHeight: 1
+  gravityValue: -9.81
+--- !u!143 &2083235420
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2083235415}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 4
+  m_Radius: 0.71
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 2, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
