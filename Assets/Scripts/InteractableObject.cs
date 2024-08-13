@@ -4,37 +4,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(SphereCollider))]
 public class InteractableObject : MonoBehaviour
 {
-    public static event Action<Transform, bool> OnInteract;
+    public static event Action<Transform, bool, bool> OnInteract;
     [SerializeField] private Canvas interactionCanvas;
-    [SerializeField] private GameObject player;
     [SerializeField] private GameObject interactionPanel;
     [SerializeField] private GameObject interactionText;
-    private CharacterController characterController;
-    private PlayerController playerController;
-    private bool playerInRange = false;
-    private bool isInteracting = false;
-    private Animator animator;
-    public bool isNPC = false;
+    [SerializeField] private bool _isNPC = false;
+    private PlayerController _playerController;
+    private Transform _playerTransform;
+    private bool _isPlayerInRange = false;
+    private bool _isInteracting = false;
+    private Animator _animator;
     private Quaternion _originalRotation;
 
     private void Start()
     {
         _originalRotation = transform.rotation;
-        interactionCanvas.enabled = false; 
-        characterController = player.GetComponent<CharacterController>(); 
-        playerController = player.GetComponent<PlayerController>();
-        animator = GetComponent<Animator>();
+        interactionCanvas.enabled = false;
+        if(_isNPC) _animator = GetComponent<Animator>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) 
+        if (other.CompareTag("Player") && other.TryGetComponent(out _playerController)) 
         {
+            if(!_playerTransform) _playerTransform = other.transform;
             interactionCanvas.enabled = true; 
             interactionText.SetActive(true);
-            playerInRange = true;
+            _isPlayerInRange = true;
         }
     }
 
@@ -44,22 +43,22 @@ public class InteractableObject : MonoBehaviour
         {
             interactionCanvas.enabled = false;
             interactionText.SetActive(false);
-            playerInRange = false;
+            _isPlayerInRange = false;
         }
     }
 
     private void Update()
     {
-        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        if (_isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            if (isInteracting)
+            if (_isInteracting)
             {
-                OnInteract?.Invoke(transform, false);
+                OnInteract?.Invoke(transform, false, _isNPC);
                 EndInteraction();
             }
             else
             {
-                OnInteract?.Invoke(transform, true);
+                OnInteract?.Invoke(transform, true, _isNPC);
                 StartInteraction();
             }
         }
@@ -67,21 +66,27 @@ public class InteractableObject : MonoBehaviour
 
     private void StartInteraction()
     {
-        transform.LookAt(player.transform);
+        if (_isNPC)
+        {
+            transform.LookAt(_playerTransform);
+            _animator.SetBool("talking", true);
+        }
         interactionText.SetActive(false);
-        playerController.enabled = false;
-        isInteracting = true;
+        _playerController.enabled = false;
+        _isInteracting = true;
         interactionPanel.SetActive(true);
-        if (isNPC == true) animator.SetBool("talking", true);
     }
 
     private void EndInteraction()
     {
-        transform.rotation = _originalRotation;
+        if (_isNPC) 
+        {
+            transform.rotation = _originalRotation;
+            _animator.SetBool("talking", false);
+        }
         interactionText.SetActive(true);
-        playerController.enabled = true;
-        isInteracting = false;
+        _playerController.enabled = true;
+        _isInteracting = false;
         interactionPanel.SetActive(false);
-        animator.SetBool("talking", false);
     }
 }

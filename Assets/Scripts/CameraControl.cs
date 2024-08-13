@@ -15,7 +15,7 @@ public class CameraControl : MonoBehaviour
         Dialogue
     }
     [SerializeField] private CinemachineVirtualCamera[] _cameras;
-    [SerializeField] private CinemachineVirtualCamera _interact;
+    [SerializeField] private CinemachineVirtualCamera[] _interact;
     private CinemachineVirtualCamera _currentCamera => _cameras[_cameraIndex];
     private CinemachineBrain _brain;
     static public CameraType CurrentType {get; private set;}
@@ -53,7 +53,11 @@ public class CameraControl : MonoBehaviour
             camera.Priority = 0;
             camera.gameObject.SetActive(false);
         }
-        _interact.gameObject.SetActive(false);
+        foreach(var camera in _interact)
+        {
+            camera.Priority = 0;
+            camera.gameObject.SetActive(false);
+        }
     }
     private void ActivateCamera()
     {
@@ -79,21 +83,21 @@ public class CameraControl : MonoBehaviour
             SwitchCurrentCamera();
         }
     }
-    private void InteractCamera(Transform interactuable, bool active)
+    private void InteractCamera(Transform interactuable, bool active, bool npc)
     {
         _canSwitch = !active;
-
+        int camera = npc ? 0 : 1;
         if(!active)
         {
-            _interact.LookAt = null;
-            _interact.gameObject.SetActive(false);
+            _interact[camera].LookAt = null;
+            _interact[camera].gameObject.SetActive(false);
             ActivateCamera();
             return;
         }
 
         DeactivateCameras();
         CurrentType = CameraType.Dialogue;
-        _interact.gameObject.SetActive(true);
-        _interact.LookAt = interactuable;
+        _interact[camera].gameObject.SetActive(true);
+        _interact[camera].LookAt = interactuable;
     }
 }

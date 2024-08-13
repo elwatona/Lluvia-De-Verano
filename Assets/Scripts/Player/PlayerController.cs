@@ -10,8 +10,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputActionReference crouchControl;
     [SerializeField] private InputActionReference sprintControl;
 
-    private CharacterController controller;
-    private Animator animator;
+    private CharacterController _characterController;
+    private Animator _animator;
     [SerializeField] private Vector3 playerVelocity;
     private bool _isGroundedPlayer;
 
@@ -21,8 +21,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float crouchSpeed = 1.0f;
     [SerializeField] private float jumpHeight = 1.0f;
     [SerializeField] private float gravityValue = -9.81f;
-    private float currentSpeed;
     [SerializeField] private bool isCrouching = false;
+    private float _currentSpeed;
 
 
     private void OnEnable()
@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
         movementControl.action.Enable();
         crouchControl.action.Enable();
         sprintControl.action.Enable();
+        InteractableObject.OnInteract += OnInteract;
     }
 
     private void OnDisable()
@@ -37,20 +38,21 @@ public class PlayerController : MonoBehaviour
         movementControl.action.Disable();
         crouchControl.action.Disable();
         sprintControl.action.Disable();
+        InteractableObject.OnInteract -= OnInteract;
     }
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
+        _characterController = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
     }
     private void Start()
     {
-        currentSpeed = playerSpeed;
+        _currentSpeed = playerSpeed;
     }
 
     void Update()
     {
-        _isGroundedPlayer = controller.isGrounded;
+        _isGroundedPlayer = _characterController.isGrounded;
         if (_isGroundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
@@ -102,11 +104,11 @@ public class PlayerController : MonoBehaviour
         // Sprint
         if (IsRunning)
         {
-            currentSpeed = sprintSpeed;
+            _currentSpeed = sprintSpeed;
         }
         else if (!isCrouching)
         {
-            currentSpeed = playerSpeed;
+            _currentSpeed = playerSpeed;
         }
 
         // Crouch
@@ -115,29 +117,45 @@ public class PlayerController : MonoBehaviour
             isCrouching = !isCrouching;
             if (isCrouching)
             {
-                currentSpeed = crouchSpeed;
-                controller.height = 2f;
-                controller.center = new Vector3(0, 1, 0);
+                _currentSpeed = crouchSpeed;
+                _characterController.height = 2f;
+                _characterController.center = new Vector3(0, 1, 0);
             }
             else
             {
-                currentSpeed = playerSpeed;
-                controller.height = 4;
-                controller.center = new Vector3(0, 2, 0);
+                _currentSpeed = playerSpeed;
+                _characterController.height = 4;
+                _characterController.center = new Vector3(0, 2, 0);
             }
         }
 
-        controller.Move(move * Time.deltaTime * currentSpeed);
+        _characterController.Move(move * Time.deltaTime * _currentSpeed);
 
         playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+        _characterController.Move(playerVelocity * Time.deltaTime);
 
         // Actualizar los bools en el Animator
-        animator.SetBool("walking", IsMoving && !IsRunning);
-        animator.SetBool("running", IsMoving && IsRunning);
-        animator.SetBool("crouching", isCrouching);
+        _animator.SetBool("walking", IsMoving && !IsRunning);
+        _animator.SetBool("running", IsMoving && IsRunning);
+        _animator.SetBool("crouching", isCrouching);
     }
-    
+    private void OnInteract(Transform interactuable, bool isInteracting, bool isNPC)
+    {
+        if(isInteracting)
+        {
+            transform.LookAt(interactuable);
+            _animator.SetBool("walking", false);
+            _animator.SetBool("running", false);
+            if(!isNPC) _animator.SetBool("crouching", true);
+            return; 
+        }
+
+        //En caso de terminar la interaccion, corre lo de abajo
+        if(!isNPC)
+        {
+            _animator.SetBool("crouching", false);
+        }
+    }
     private Vector2 _movement => movementControl.action.ReadValue<Vector2>();
     private bool IsMoving
     {
