@@ -12,6 +12,7 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private GameObject interactionPanel;
     [SerializeField] private GameObject interactionText;
     [SerializeField] private bool _isNPC = false;
+    [SerializeField] private GameObject text;
     private PlayerController _playerController;
     private Transform _playerTransform;
     private bool _isPlayerInRange = false;
@@ -75,6 +76,8 @@ public class InteractableObject : MonoBehaviour
         _playerController.enabled = false;
         _isInteracting = true;
         interactionPanel.SetActive(true);
+        text.SetActive(true);
+
     }
 
     private void EndInteraction()
@@ -88,5 +91,6 @@ public class InteractableObject : MonoBehaviour
         _playerController.enabled = true;
         _isInteracting = false;
         interactionPanel.SetActive(false);
+        text.SetActive(false);
     }
 }
