@@ -36,24 +36,25 @@ public class CameraControl : MonoBehaviour
     }
     private void Start()
     {
-        DeactivateCameras();
+        DeactivateCameras(_cameras);
+        DeactivateCameras(_interact);
         ActivateCamera();
+    }
+    public void CameraActivated(ICinemachineCamera from, ICinemachineCamera to)
+    {
+        Debug.Log(from.Name + to.Name);
     }
     private void SwitchCurrentCamera()
     {
         _cameraIndex ++;
         _cameraIndex = _cameraIndex >= _cameras.Length ? 0 : _cameraIndex;
-        DeactivateCameras();
+        DeactivateCameras(_cameras);
+        DeactivateCameras(_interact);
         ActivateCamera();
     }
-    private void DeactivateCameras()
+    private void DeactivateCameras(CinemachineVirtualCamera[] cameras)
     {
-        foreach(var camera in _cameras)
-        {
-            camera.Priority = 0;
-            camera.gameObject.SetActive(false);
-        }
-        foreach(var camera in _interact)
+        foreach(var camera in cameras)
         {
             camera.Priority = 0;
             camera.gameObject.SetActive(false);
@@ -94,8 +95,9 @@ public class CameraControl : MonoBehaviour
             ActivateCamera();
             return;
         }
-
-        DeactivateCameras();
+        
+        DeactivateCameras(_cameras);
+        DeactivateCameras(_interact);
         CurrentType = CameraType.Dialogue;
         _interact[camera].gameObject.SetActive(true);
         _interact[camera].LookAt = interactuable;

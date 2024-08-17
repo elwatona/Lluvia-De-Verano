@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
                 move.y = 0f;
 
                 // Rotaci�n en vista isom�trica
-                if (_movement != Vector2.zero)
+                if (IsMoving)
                 {
                     float targetAngle = Mathf.Atan2(_movement.x, _movement.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
@@ -77,10 +77,8 @@ public class PlayerController : MonoBehaviour
 
             case CameraControl.CameraType.TopDown:
                 move = new Vector3(_movement.x, 0, _movement.y);
-                move.y = 0f;
-
                 // Rotaci�n en vista top-down
-                if (_movement != Vector2.zero)
+                if (IsMoving)
                 {
                     float targetAngle = Mathf.Atan2(_movement.x, _movement.y) * Mathf.Rad2Deg;
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
@@ -92,7 +90,7 @@ public class PlayerController : MonoBehaviour
                 move = new Vector3(_movement.x, 0, 0);
 
                 // Rotaci�n en vista 2D (solo eje Y)
-                if (_movement.x != 0)
+                if (IsMoving)
                 {
                     float targetAngle = _movement.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);

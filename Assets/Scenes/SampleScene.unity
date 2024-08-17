@@ -510,7 +510,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
       propertyPath: m_Name
-      value: Player New
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 70d7b2fe0c56c504cadaa8ecd7722f8a, type: 3}
       propertyPath: m_TagString
@@ -1067,7 +1067,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.05
+  m_Radius: 0.1
   m_Center: {x: -0.0000000018626451, y: -0.0000000013969836, z: 0.009900828}
 --- !u!1 &938554310
 GameObject:
@@ -2234,7 +2234,7 @@ GameObject:
   - component: {fileID: 1801902737}
   - component: {fileID: 1801902736}
   m_Layer: 0
-  m_Name: Isometric
+  m_Name: 3rd Person
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
