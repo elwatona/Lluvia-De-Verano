@@ -87,12 +87,12 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case CameraControl.CameraType.Side2D:
-                move = new Vector3(_movement.x, 0, 0);
+                move = new Vector3(0, 0, _movement.x);
 
                 // Rotaci�n en vista 2D (solo eje Y)
                 if (IsMoving)
                 {
-                    float targetAngle = _movement.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
+                    float targetAngle = _movement.x > 0 ? 0 : 180f; // Rotar a la derecha o izquierda
                     Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
                     transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
                 }
@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
     {
         if(isInteracting)
         {
-            transform.LookAt(interactuable);
+             //transform.LookAt(interactuable);
             _animator.SetBool("walking", false);
             _animator.SetBool("running", false);
             if(!isNPC) _animator.SetBool("crouching", true);

@@ -9,9 +9,9 @@ public class CameraControl : MonoBehaviour
 
     public enum CameraType
     {
-        Isometric,
-        TopDown,
         Side2D,
+        TopDown,
+        Isometric,
         Dialogue
     }
     [SerializeField] private CinemachineVirtualCamera[] _cameras;
@@ -83,6 +83,7 @@ public class CameraControl : MonoBehaviour
         {
             SwitchCurrentCamera();
         }
+        
     }
     private void InteractCamera(Transform interactuable, bool active, bool npc)
     {
@@ -102,4 +103,6 @@ public class CameraControl : MonoBehaviour
         _interact[camera].gameObject.SetActive(true);
         _interact[camera].LookAt = interactuable;
     }
+
+
 }
