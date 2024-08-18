@@ -4,40 +4,100 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Cinemachine;
 
+[RequireComponent(typeof(CharacterController), typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private InputActionReference movementControl;
-    [SerializeField] private InputActionReference crouchControl;
-    [SerializeField] private InputActionReference sprintControl;
-
+#region Components
     private CharacterController _characterController;
     private Animator _animator;
-    [SerializeField] private Vector3 playerVelocity;
-    private bool _isGroundedPlayer;
-
-    [SerializeField] private float rotationSpeed = 4f;
-    [SerializeField] private float playerSpeed = 2.0f;
-    [SerializeField] private float sprintSpeed = 4.0f;
-    [SerializeField] private float crouchSpeed = 1.0f;
-    [SerializeField] private float jumpHeight = 1.0f;
-    [SerializeField] private float gravityValue = -9.81f;
+#endregion
+#region Inspector Properties
+    [SerializeField] private InputActionReference[] _actions;
+    [SerializeField] private float _rotationSpeed = 4f, 
+    _playerSpeed = 2.0f, 
+    _sprintSpeed = 4.0f, 
+    _crouchSpeed = 1.0f, 
+    _jumpHeight = 1.0f, 
+    _gravityValue = -9.81f;
     [SerializeField] private bool isCrouching = false;
+#endregion
+#region Private Properties
+    private bool _isGroundedPlayer => _characterController.isGrounded;
     private float _currentSpeed;
+    private bool IsMoving
+    {
+        get
+        {
+            switch(CameraControl.CurrentType)
+            {
+                case CameraControl.CameraType.Side2D:
+                return _movementInput.x != 0;
 
+                case CameraControl.CameraType.Dialogue:
+                return false;
 
+                default:
+                return _movementInput != Vector2.zero;
+            }
+        }
+    }
+    private Vector2 _movementInput => _actions[0].action.ReadValue<Vector2>();
+    private bool IsCrouching => _actions[1].action.WasPressedThisFrame() && _movementInput == Vector2.zero;
+    private bool IsRunning => _actions[2].action.IsPressed() && !isCrouching;
+    private Vector3 _desiredMovement 
+    {
+        get
+        {
+            switch(CameraControl.CurrentType)
+            {
+                case CameraControl.CameraType.Side2D:
+                return new Vector3(_movementInput.x, 0, 0);
+
+                case CameraControl.CameraType.Isometric:
+                Vector3 newValue = new Vector3(_movementInput.x, 0, _movementInput.y);
+                newValue = CameraControl.CameraTransform.forward * _movementInput.y + CameraControl.CameraTransform.right * _movementInput.x;
+                newValue.y = 0f;
+                return newValue;
+
+                case CameraControl.CameraType.TopDown:
+                return new Vector3(_movementInput.x, 0, _movementInput.y);
+
+                default:
+                Debug.LogError("No hay movimiento deseado para esta camara");
+                return Vector3.zero;
+            }
+        }
+    }
+    private float _targetAngle
+    {
+        get
+        {
+            switch(CameraControl.CurrentType)
+            {
+                case CameraControl.CameraType.Side2D:
+                return _movementInput.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
+
+                case CameraControl.CameraType.TopDown:
+                return Mathf.Atan2(_movementInput.x, _movementInput.y) * Mathf.Rad2Deg;
+
+                case CameraControl.CameraType.Isometric:
+                return Mathf.Atan2(_movementInput.x, _movementInput.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
+
+                default:
+                Debug.LogError("No hay rotacion deseada para esta camara");
+                return 0;
+            }
+        }
+    }
+#endregion
     private void OnEnable()
     {
-        movementControl.action.Enable();
-        crouchControl.action.Enable();
-        sprintControl.action.Enable();
+        EnableActions(true);
         InteractableObject.OnInteract += OnInteract;
     }
-
     private void OnDisable()
     {
-        movementControl.action.Disable();
-        crouchControl.action.Disable();
-        sprintControl.action.Disable();
+        EnableActions(false);
         InteractableObject.OnInteract -= OnInteract;
     }
     private void Awake()
@@ -47,95 +107,61 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
-        _currentSpeed = playerSpeed;
+        _currentSpeed = _playerSpeed;
     }
-
     void Update()
     {
-        _isGroundedPlayer = _characterController.isGrounded;
-        if (_isGroundedPlayer && playerVelocity.y < 0)
+        Gravity();
+        _currentSpeed = IsRunning ? _sprintSpeed : IsCrouching ? _crouchSpeed : _playerSpeed;
+        OnCrouch();
+        _characterController.Move(_desiredMovement * Time.deltaTime * _currentSpeed);
+        Rotate();
+        UpdateAnimator();
+    }
+
+    private void EnableActions(bool value)
+    {
+        foreach(var action in _actions)
         {
-            playerVelocity.y = 0f;
+            if(value) action.action.Enable();
+            else action.action.Disable();
         }
-        Vector3 move = Vector3.zero;
-
-        switch (CameraControl.CurrentType)
-        {
-            case CameraControl.CameraType.Isometric:
-                move = new Vector3(_movement.x, 0, _movement.y);
-                move = CameraControl.CameraTransform.forward * move.z + CameraControl.CameraTransform.right * move.x;
-                move.y = 0f;
-
-                // Rotaci�n en vista isom�trica
-                if (IsMoving)
-                {
-                    float targetAngle = Mathf.Atan2(_movement.x, _movement.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
-                    Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
-                    transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
-                }
-                break;
-
-            case CameraControl.CameraType.TopDown:
-                move = new Vector3(_movement.x, 0, _movement.y);
-                // Rotaci�n en vista top-down
-                if (IsMoving)
-                {
-                    float targetAngle = Mathf.Atan2(_movement.x, _movement.y) * Mathf.Rad2Deg;
-                    Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
-                    transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
-                }
-                break;
-
-            case CameraControl.CameraType.Side2D:
-                move = new Vector3(_movement.x, 0, 0);
-
-                // Rotaci�n en vista 2D (solo eje Y)
-                if (IsMoving)
-                {
-                    float targetAngle = _movement.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
-                    Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
-                    transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
-                }
-                break;
-        }
-
-        // Sprint
-        if (IsRunning)
-        {
-            _currentSpeed = sprintSpeed;
-        }
-        else if (!isCrouching)
-        {
-            _currentSpeed = playerSpeed;
-        }
-
-        // Crouch
-        if (IsCrouching)
-        {
-            isCrouching = !isCrouching;
-            if (isCrouching)
-            {
-                _currentSpeed = crouchSpeed;
-                _characterController.height = 2f;
-                _characterController.center = new Vector3(0, 1, 0);
-            }
-            else
-            {
-                _currentSpeed = playerSpeed;
-                _characterController.height = 4;
-                _characterController.center = new Vector3(0, 2, 0);
-            }
-        }
-
-        _characterController.Move(move * Time.deltaTime * _currentSpeed);
-
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        _characterController.Move(playerVelocity * Time.deltaTime);
-
-        // Actualizar los bools en el Animator
+    }
+    private void UpdateAnimator()
+    {
         _animator.SetBool("walking", IsMoving && !IsRunning);
         _animator.SetBool("running", IsMoving && IsRunning);
         _animator.SetBool("crouching", isCrouching);
+    }
+    private void Gravity()
+    {
+        Vector3 gravity = new();
+        gravity.y += _gravityValue * Time.deltaTime;
+
+        if (_isGroundedPlayer && gravity.y < 0)
+        {
+            gravity.y = 0f;
+        }
+
+        _characterController.Move(gravity * Time.deltaTime);
+    }
+    private void Rotate()
+    {
+        if(!IsMoving) return;
+        Quaternion rotation = Quaternion.Euler(0f, _targetAngle, 0f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * _rotationSpeed);
+    }
+    private void OnCrouch()
+    {
+        if (IsCrouching)
+        {
+            isCrouching = !isCrouching;
+            _characterController.height = 2f;
+            _characterController.center = new Vector3(0, 1, 0);
+            return;
+        }
+        _characterController.height = 4;
+        _characterController.center = new Vector3(0, 2, 0);
     }
     private void OnInteract(Transform interactuable, bool isInteracting, bool isNPC)
     {
@@ -154,24 +180,4 @@ public class PlayerController : MonoBehaviour
             _animator.SetBool("crouching", false);
         }
     }
-    private Vector2 _movement => movementControl.action.ReadValue<Vector2>();
-    private bool IsMoving
-    {
-        get
-        {
-            switch(CameraControl.CurrentType)
-            {
-                case CameraControl.CameraType.Side2D:
-                return _movement.x != 0;
-
-                case CameraControl.CameraType.Dialogue:
-                return false;
-
-                default:
-                return _movement != Vector2.zero;
-            }
-        }
-    }
-    private bool IsRunning => sprintControl.action.IsPressed() && !isCrouching;
-    private bool IsCrouching => crouchControl.action.WasPressedThisFrame() && _movement == Vector2.zero;
 }

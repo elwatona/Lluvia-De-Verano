@@ -2596,16 +2596,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 760d9938baa43394eb3fdd8a62770b3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementControl: {fileID: 6457544848979614625, guid: 5be73463454b8834d8787145c1f38503, type: 3}
-  crouchControl: {fileID: -5054940362726808207, guid: 5be73463454b8834d8787145c1f38503, type: 3}
-  sprintControl: {fileID: -6915084605742977590, guid: 5be73463454b8834d8787145c1f38503, type: 3}
-  playerVelocity: {x: 0, y: 0, z: 0}
-  rotationSpeed: 4
-  playerSpeed: 4
-  sprintSpeed: 6
-  crouchSpeed: 1
-  jumpHeight: 1
-  gravityValue: -9.81
+  _actions:
+  - {fileID: 6457544848979614625, guid: 5be73463454b8834d8787145c1f38503, type: 3}
+  - {fileID: -5054940362726808207, guid: 5be73463454b8834d8787145c1f38503, type: 3}
+  - {fileID: -6915084605742977590, guid: 5be73463454b8834d8787145c1f38503, type: 3}
+  _rotationSpeed: 4
+  _playerSpeed: 2
+  _sprintSpeed: 4
+  _crouchSpeed: 1
+  _jumpHeight: 1
+  _gravityValue: -9.81
   isCrouching: 0
 --- !u!143 &2083235420
 CharacterController:
