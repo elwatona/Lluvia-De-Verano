@@ -48,45 +48,59 @@ public class PlayerController : MonoBehaviour
     {
         get
         {
+            Vector3 result;
+            Vector3 forward;
+            Vector3 right;
             switch(CameraControl.CurrentType)
             {
                 case CameraControl.CameraType.Side2D:
-                return new Vector3(_movementInput.x, 0, 0);
-
-                case CameraControl.CameraType.Isometric:
-                Vector3 newValue = new Vector3(_movementInput.x, 0, _movementInput.y);
-                newValue = CameraControl.CameraTransform.forward * _movementInput.y + CameraControl.CameraTransform.right * _movementInput.x;
-                newValue.y = 0f;
-                return newValue;
+                    result = CameraControl.CameraTransform.right * _movementInput.x;
+                break;
 
                 case CameraControl.CameraType.TopDown:
-                return new Vector3(_movementInput.x, 0, _movementInput.y);
+                    forward = CameraControl.CameraTransform.up * _movementInput.y;
+                    right = CameraControl.CameraTransform.right * _movementInput.x;
+                    result = forward + right; 
+                break;
+
+                case CameraControl.CameraType.Isometric:
+                    forward = CameraControl.CameraTransform.forward * _movementInput.y;
+                    right = CameraControl.CameraTransform.right * _movementInput.x;
+                    result = forward + right;
+                break;
 
                 default:
-                Debug.LogError("No hay movimiento deseado para esta camara");
-                return Vector3.zero;
+                    result = Vector3.zero;
+                    Debug.LogError("No hay movimiento deseado para esta camara");
+                break;
             }
+            result = result.normalized;
+            result.y = _gravityValue;
+            return result;
         }
     }
     private float _targetAngle
     {
         get
         {
+            float result;
             switch(CameraControl.CurrentType)
             {
                 case CameraControl.CameraType.Side2D:
-                return _movementInput.x > 0 ? 90f : -90f; // Rotar a la derecha o izquierda
+                    result = _movementInput.x > 0 ? 180f : 0f; // Rotar a la derecha o izquierda
+                break;
 
                 case CameraControl.CameraType.TopDown:
-                return Mathf.Atan2(_movementInput.x, _movementInput.y) * Mathf.Rad2Deg;
-
                 case CameraControl.CameraType.Isometric:
-                return Mathf.Atan2(_movementInput.x, _movementInput.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
+                    result = Mathf.Atan2(_movementInput.x, _movementInput.y) * Mathf.Rad2Deg + CameraControl.CameraTransform.eulerAngles.y;
+                break;
 
                 default:
-                Debug.LogError("No hay rotacion deseada para esta camara");
-                return 0;
+                    Debug.LogError("No hay rotacion deseada para esta camara");
+                    result = 0;
+                break;
             }
+            return result;
         }
     }
 #endregion
@@ -111,7 +125,6 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        Gravity();
         _currentSpeed = IsRunning ? _sprintSpeed : IsCrouching ? _crouchSpeed : _playerSpeed;
         OnCrouch();
         _characterController.Move(_desiredMovement * Time.deltaTime * _currentSpeed);
@@ -132,18 +145,6 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool("walking", IsMoving && !IsRunning);
         _animator.SetBool("running", IsMoving && IsRunning);
         _animator.SetBool("crouching", isCrouching);
-    }
-    private void Gravity()
-    {
-        Vector3 gravity = new();
-        gravity.y += _gravityValue * Time.deltaTime;
-
-        if (_isGroundedPlayer && gravity.y < 0)
-        {
-            gravity.y = 0f;
-        }
-
-        _characterController.Move(gravity * Time.deltaTime);
     }
     private void Rotate()
     {
