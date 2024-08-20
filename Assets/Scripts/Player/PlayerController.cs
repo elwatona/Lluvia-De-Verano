@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Cinemachine;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(CharacterController), typeof(Animator))]
 public class PlayerController : MonoBehaviour
@@ -28,22 +29,27 @@ public class PlayerController : MonoBehaviour
     {
         get
         {
+            bool result;
             switch(CameraControl.CurrentType)
             {
                 case CameraControl.CameraType.Side2D:
-                return _movementInput.x != 0;
+                result = _movementInput.x != 0;
+                break;
 
                 case CameraControl.CameraType.Dialogue:
-                return false;
+                result = false;
+                break;
 
                 default:
-                return _movementInput != Vector2.zero;
+                result = _movementInput != Vector2.zero;
+                break;
             }
+            return result && _canMove;
         }
     }
     private Vector2 _movementInput => _actions[0].action.ReadValue<Vector2>();
-    private bool IsCrouching => _actions[1].action.WasPressedThisFrame() && _movementInput == Vector2.zero;
-    private bool IsRunning => _actions[2].action.IsPressed() && !isCrouching;
+    private bool IsCrouching => _canMove && _actions[1].action.WasPressedThisFrame() && _movementInput == Vector2.zero;
+    private bool IsRunning => _canMove && _actions[2].action.IsPressed() && !isCrouching;
     private Vector3 _desiredMovement 
     {
         get
@@ -103,16 +109,21 @@ public class PlayerController : MonoBehaviour
             return result;
         }
     }
+    private bool _canMove;
 #endregion
     private void OnEnable()
     {
         EnableActions(true);
         InteractableObject.OnInteract += OnInteract;
+        CameraControl.OnCameraBlendStarted += () => _canMove = false;
+        CameraControl.OnCameraBlendStopped += () => _canMove = true;
     }
     private void OnDisable()
     {
         EnableActions(false);
         InteractableObject.OnInteract -= OnInteract;
+        CameraControl.OnCameraBlendStarted -= () => _canMove = false;
+        CameraControl.OnCameraBlendStopped -= () => _canMove = true;
     }
     private void Awake()
     {
@@ -126,9 +137,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         _currentSpeed = IsRunning ? _sprintSpeed : IsCrouching ? _crouchSpeed : _playerSpeed;
-        OnCrouch();
-        _characterController.Move(_desiredMovement * Time.deltaTime * _currentSpeed);
-        Rotate();
+        if(_canMove)
+        {
+            OnCrouch();
+            _characterController.Move(_desiredMovement * Time.deltaTime * _currentSpeed);
+            Rotate();
+        }
         UpdateAnimator();
     }
 

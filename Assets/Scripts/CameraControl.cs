@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
-using Unity.VisualScripting;
+using System;
 
 public class CameraControl : MonoBehaviour
 {
-
+    public static event Action OnCameraBlendStarted;
+    public static event Action OnCameraBlendStopped;
+    private bool _wasBlendingLastFrame;
     public enum CameraType
     {
         Side2D,
@@ -29,16 +31,26 @@ public class CameraControl : MonoBehaviour
     private void OnEnable()
     {
         InteractableObject.OnInteract += InteractCamera;
+        CameraSwaper.OnSwapCamera += ChangeCamera;
     }
     private void OnDisable()
     {
         InteractableObject.OnInteract -= InteractCamera;
+        CameraSwaper.OnSwapCamera -= ChangeCamera;
     }
     private void Start()
     {
         DeactivateCameras(_cameras);
         DeactivateCameras(_interact);
         ActivateCamera();
+    }
+    private void Update()
+    {
+        if (_canSwitch && Input.GetKeyDown(KeyCode.Tab))
+        {
+            SwitchCurrentCamera();
+        }
+        OnBlending();
     }
     public void CameraActivated(ICinemachineCamera from, ICinemachineCamera to)
     {
@@ -77,14 +89,6 @@ public class CameraControl : MonoBehaviour
         }
         _brain.m_WorldUpOverride = worldUp;
     }
-    private void Update()
-    {
-        if (_canSwitch && Input.GetKeyDown(KeyCode.Tab))
-        {
-            SwitchCurrentCamera();
-        }
-        
-    }
     private void InteractCamera(Transform interactuable, bool active, bool npc)
     {
         _canSwitch = !active;
@@ -103,6 +107,30 @@ public class CameraControl : MonoBehaviour
         _interact[camera].gameObject.SetActive(true);
         _interact[camera].LookAt = interactuable;
     }
-
-
+    private void ChangeCamera(CameraType desiredCamera)
+    {
+        _cameraIndex = (int)desiredCamera;
+        DeactivateCameras(_cameras);
+        DeactivateCameras(_interact);
+        ActivateCamera();
+    }
+    private void OnBlending()
+    {
+        if(_brain.IsBlending)
+        {
+            if(!_wasBlendingLastFrame)
+            {
+                OnCameraBlendStarted?.Invoke();
+            }
+            _wasBlendingLastFrame = true;
+        }
+        else
+        {
+            if(_wasBlendingLastFrame)
+            {
+                OnCameraBlendStopped?.Invoke();
+            }
+            _wasBlendingLastFrame = false;
+        }
+    }
 }
