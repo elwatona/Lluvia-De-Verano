@@ -144,6 +144,11 @@ public class PlayerController : MonoBehaviour
             Rotate();
         }
         UpdateAnimator();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     private void EnableActions(bool value)
