@@ -24,6 +24,7 @@ public class CameraControl : MonoBehaviour
     static public Transform CameraTransform {get; private set;}
     private int _cameraIndex;
     [SerializeField] private bool _canSwitch = true;
+    [SerializeField] private Transform _worldUp;
     private void Awake()
     {
         _brain = GetComponentInChildren<CinemachineBrain>();
@@ -82,12 +83,7 @@ public class CameraControl : MonoBehaviour
     }
     private void ChangeWorldUp()
     {
-        Transform worldUp = null;
-        if (CurrentType == CameraType.TopDown)
-        {
-            worldUp = transform.Find("WorldUp");
-        }
-        _brain.m_WorldUpOverride = worldUp;
+        _brain.m_WorldUpOverride = CurrentType == CameraType.TopDown ? _worldUp : null;
     }
     private void InteractCamera(Transform interactuable, bool active, bool npc)
     {
@@ -95,7 +91,6 @@ public class CameraControl : MonoBehaviour
         int camera = npc ? 0 : 1;
         if(!active)
         {
-            _interact[camera].LookAt = null;
             _interact[camera].gameObject.SetActive(false);
             ActivateCamera();
             return;

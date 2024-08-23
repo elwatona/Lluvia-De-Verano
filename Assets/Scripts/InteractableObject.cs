@@ -69,7 +69,7 @@ public class InteractableObject : MonoBehaviour
     {
         if (_isNPC)
         {
-            //transform.LookAt(_playerTransform);
+            // transform.LookAt(_playerTransform);
             _animator.SetBool("talking", true);
         }
         interactionText.SetActive(false);
@@ -84,7 +84,7 @@ public class InteractableObject : MonoBehaviour
     {
         if (_isNPC) 
         {
-           // transform.rotation = _originalRotation;
+        //    transform.rotation = _originalRotation;
             _animator.SetBool("talking", false);
         }
         interactionText.SetActive(true);
